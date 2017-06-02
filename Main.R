@@ -1,5 +1,3 @@
-today <- gsub("-", "", as.Date(Sys.time()))
-
 # Load data
 priceData <- read.csv("PPR-ALL.csv")
 
@@ -34,22 +32,18 @@ format_prices <- function(x) {
   gsub('Ç|,|€', '', x)
 }
 
-#
 millions<-function(x) {
   x<-x/1000000
   str_c("$",x,"M")
 }
 
 # Units sold per month
-monthly <- priceData %>%
+monthly_units <- priceData %>%
   mutate(month = as.Date(priceData$DateOfSale, format="%m/%Y")) %>%
   group_by(month) %>%
   summarise(total = length(Price), avg_price = mean(Price))
 
-# Un-comment lines below to create jpeg of graph
-#filename1 <- paste0("IrelandSalesCount_", today, ".jpeg")
-#jpeg(filename = filename1, width = 1200, height = 800, quality = 100)
-ggplot(data=monthly, aes(x=month, y=total)) +
+ggplot(data=monthly_units, aes(x=month, y=total)) +
   geom_line(size = 2) + theme_plot2 +
   scale_x_date(date_breaks = "12 months", date_labels = "%b\n%Y") +
   scale_y_continuous(breaks = seq(0, 1600, by = 200)) +
@@ -58,7 +52,7 @@ ggplot(data=monthly, aes(x=month, y=total)) +
 #dev.off()
 
 # Average price per month
-ggplot(data=monthly,aes(x=month,y=avg_price)) +
+ggplot(data=monthly_units,aes(x=month,y=avg_price)) +
   geom_line(size = 2) + theme_plot2 +
   scale_x_date(date_breaks="12 months",date_labels="%b\n%Y") +
   ggtitle("Average price by month") + xlab("") + ylab("") +
@@ -73,7 +67,6 @@ priceData$month_only<-factor(priceData$month_only,levels=c("Jan","Feb","Mar","Ap
 priceData$year_only<-format(priceData$Month,"%Y")
 
 month<-priceData %>% group_by(month_only,year_only) %>% summarise(LEN=length(Price),MED=median(Price))
-
 
 ggplot(data=month,aes(x=month_only,y=MED,group=month_only)) +
   geom_boxplot(fill="lightblue",outlier.color=NA) + theme_plot2 +
